@@ -57,16 +57,7 @@ export class CustomerComponent implements OnInit {
       notification: 'email',
       rating: [null, ratingRange(1, 5)],
       sendCatalog: true,
-      addresses : this.fb.group({
-        addressType: 'home',
-      street1: '',
-      street2: '',
-      city: '',
-      state: '',
-      zip: ''
-      })
-
-
+      addresses: this.buildAddress()
     });
 
     this.customerForm.get('notification')?.valueChanges.subscribe(
@@ -81,34 +72,45 @@ export class CustomerComponent implements OnInit {
     );
   }
 
-  populateTestData(): void {
-    this.customerForm.patchValue({
-      firstName: 'Jack',
-      lastName: 'Harkness',
-      sendCatalog: false
+  buildAddress(): FormGroup {
+    return this.fb.group({
+      addressType: 'home',
+      street1: '',
+      street2: '',
+      city: '',
+      state: '',
+      zip: ''
     });
   }
+  
+populateTestData(): void {
+  this.customerForm.patchValue({
+    firstName: 'Jack',
+    lastName: 'Harkness',
+    sendCatalog: false
+  });
+}
 
-  save(): void {
-    console.log(this.customerForm);
-    console.log('Saved: ' + JSON.stringify(this.customerForm.value));
+save(): void {
+  console.log(this.customerForm);
+  console.log('Saved: ' + JSON.stringify(this.customerForm.value));
+}
+
+setMessage(c: AbstractControl): void {
+  this.emailMessage = '';
+  if((c.touched || c.dirty) && c.errors) {
+  this.emailMessage = Object.keys(c.errors).map(
+    key => this.validationMessages[key]).join(' ');
+}
   }
 
-  setMessage(c: AbstractControl): void {
-    this.emailMessage = '';
-    if ((c.touched || c.dirty) && c.errors) {
-      this.emailMessage = Object.keys(c.errors).map(
-        key => this.validationMessages[key]).join(' ');
-    }
-  }
-
-  setNotification(notifyVia: string): void {
-    const phoneControl = this.customerForm.get('phone');
-    if (notifyVia === 'text') {
-      phoneControl?.setValidators(Validators.required);
-    } else {
-      phoneControl?.clearValidators();
-    }
-    phoneControl?.updateValueAndValidity();
+setNotification(notifyVia: string): void {
+  const phoneControl = this.customerForm.get('phone');
+  if(notifyVia === 'text') {
+  phoneControl?.setValidators(Validators.required);
+} else {
+  phoneControl?.clearValidators();
+}
+phoneControl?.updateValueAndValidity();
   }
 }
